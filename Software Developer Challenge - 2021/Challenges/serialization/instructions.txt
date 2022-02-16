@@ -1,0 +1,28 @@
+Serialization and Deserialization
+=================================
+
+Problem Definition
+------------------
+
+You are tasked with designing a network protocol for a simple online game. The users of the game can send chat messages,
+and move around in the game world. Please see Message, ChatMessage, and PositionMessage for the content of these messages.
+Because we want to use the user's bandwidth as efficiently as possible, the ideal protocol should use as little bandwidth as possible.
+
+Design a protocol for serializing these messages, and implement both a serializer and a deserializer.
+The implementation should be done in SerializerImpl and DeserializerImpl by implementing the Serializer and Deserializer interfaces, respectively.
+Make sure to check out the parameter descriptions for the deserializer.
+
+The test harness loads sample messages from disk, and run them through your serializer, then your deserializer, to verify they come out the end
+exactly like they went in. It will print out the total bytes transmitted, count of correct messsages, as well as any problems with the received messages.
+
+Other information:
+- The game world is 1024 units wide by 1024 units tall.
+- Usernames are 16 characters maximum
+- Chat messages are 512 characters maximum
+
+
+Restrictions
+------------
+- Don't use any built in compression tools (GZIPOutputStream, etc)
+- Don't use any third party compression or serialization tools
+- Please do not submit hidden files (.idea, .DS_Store, Thumbs.db, etc) with your solution.

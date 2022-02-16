@@ -1,0 +1,8 @@
+[
+  {
+    "type": "com.bigvikinggames.interview.serialization.model.ChatMessage",
+    "username": "User1234",
+    "message": "This is a test message",
+    "timestamp": 1494528830
+  }
+]

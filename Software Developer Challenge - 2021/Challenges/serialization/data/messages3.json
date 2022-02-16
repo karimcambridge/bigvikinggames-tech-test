@@ -1,0 +1,35 @@
+[
+  {
+    "type": "com.bigvikinggames.interview.serialization.model.ChatMessage",
+    "username": "Alice",
+    "message": "Hello!",
+    "timestamp": 1494528830
+  },
+  {
+    "type": "com.bigvikinggames.interview.serialization.model.PositionMessage",
+    "username": "Bob",
+    "worldX": 756,
+    "worldY": 984,
+    "timestamp": 1494528835
+  },
+  {
+    "type": "com.bigvikinggames.interview.serialization.model.PositionMessage",
+    "username": "Alice",
+    "worldX": 780,
+    "worldY": 990,
+    "timestamp": 1494528930
+  },
+  {
+    "type": "com.bigvikinggames.interview.serialization.model.PositionMessage",
+    "username": "Bob",
+    "worldX": 733,
+    "worldY": 980,
+    "timestamp": 1494529278
+  },
+  {
+    "type": "com.bigvikinggames.interview.serialization.model.ChatMessage",
+    "username": "Bob",
+    "message": "Hi there ☺",
+    "timestamp": 1494528830
+  }
+]

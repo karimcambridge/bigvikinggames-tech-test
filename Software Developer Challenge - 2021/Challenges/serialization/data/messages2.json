@@ -1,0 +1,29 @@
+[
+  {
+    "type": "com.bigvikinggames.interview.serialization.model.ChatMessage",
+    "username": "User1234",
+    "message": "I am going to move",
+    "timestamp": 1494528830
+  },
+  {
+    "type": "com.bigvikinggames.interview.serialization.model.PositionMessage",
+    "username": "User1234",
+    "worldX": 934,
+    "worldY": 467,
+    "timestamp": 1494528832
+  },
+  {
+    "type": "com.bigvikinggames.interview.serialization.model.PositionMessage",
+    "username": "User1234",
+    "worldX": 937,
+    "worldY": 479,
+    "timestamp": 1494524300
+  },
+  {
+    "type": "com.bigvikinggames.interview.serialization.model.PositionMessage",
+    "username": "User1234",
+    "worldX": 937,
+    "worldY": 480,
+    "timestamp": 1494526500
+  }
+]
