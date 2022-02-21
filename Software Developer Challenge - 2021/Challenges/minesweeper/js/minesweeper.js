@@ -36,6 +36,7 @@ const
 			remainingMines: 0,
 			flags: 0,
 			tiles: [],
+			first: true,
 		},
 	}
 ;
@@ -70,24 +71,19 @@ const buildGrid = () => {
 		rows = gameOptions.difficulty.rows
 	;
 	grid.innerHTML = '';
+	gameOptions.state.tiles = [];
 
 	// Build DOM Grid
 	let
-		tile,
-		count = 0
+		tile
 	;
 	for(let y = 0; y < rows; y++) {
 		for(let x = 0; x < columns; x++) {
-			tile = createTile(x, y, Boolean(count < gameOptions.state.remainingMines));
+			tile = createTile(x, y);
 			gameOptions.state.tiles.push(tile);
-			//console.log(Boolean(count < gameOptions.state.remainingMines), count, gameOptions.state.remainingMines);
-			++count;
 		}
 	}
-	// shuffle tiles to place mines
-	//console.log(gameOptions.state.tiles.map(e => e.getAttribute('data-mine')));
-	gameOptions.state.tiles = gameOptions.state.tiles.sort(() => Math.random() - 0.5);
-	//console.log(gameOptions.state.tiles.map(e => e.getAttribute('data-mine')));
+	placeRandomisedMines();
 	for(tile of gameOptions.state.tiles) {
 		grid.appendChild(tile);
 	}
@@ -98,31 +94,45 @@ const buildGrid = () => {
 
 	grid.style.width = (columns * width) + 'px';
 	grid.style.height = (rows * height) + 'px';
-
 };
 
-const createTile = (x, y, isMine) => {
-	const tile = document.createElement('div');
+const placeRandomisedMines = () => {
+	let
+		count = 0
+	;
+	//console.log('placeRandomisedMines');
+	// shuffle tiles to place mines
+	for(tile of gameOptions.state.tiles) {
+		const
+			mine = document.createAttribute('data-mine')
+		;
+		mine.value = (count++ < gameOptions.state.remainingMines) ? 'true' : 'false';
+		tile.setAttributeNode(mine);
+		//console.log(mine.value);
+	}
+	gameOptions.state.tiles = shuffle(gameOptions.state.tiles);
+};
 
+const createTile = (x, y) => {
+	const
+		tile = document.createElement('div')
+	;
 	tile.classList.add('tile');
 	tile.classList.add('hidden');
 
 	tile.addEventListener('auxclick', e => { e.preventDefault(); }); // Middle Click
 	tile.addEventListener('contextmenu', e => { e.preventDefault(); }); // Right Click
 	tile.addEventListener('mouseup', handleTileClick ); // All Clicks
-
-	const mine = document.createAttribute('data-mine');       
-	mine.value = isMine ? 'true' : 'false';
-	tile.setAttributeNode(mine);
 	return tile;
 };
 
 const startGame = () => {
-	gameOptions.state.tiles = [];
 	gameOptions.time = 0;
 	gameOptions.state.remainingMines = gameOptions.difficulty.mines;
+	gameOptions.state.flags = 0;
+	gameOptions.state.first = true;
 	document.getElementById('flagCount').innerHTML = gameOptions.state.remainingMines?.toString()?.padStart(settings.timerPad, '0');
-	
+    killTimer();
 	buildGrid();
 	if(gameOptions.state.game === 'ended') {
 		const smiley = document.getElementById('smiley');
@@ -148,7 +158,7 @@ const smileyUp = () => {
 
 const handleTileClick = event => {
 	if(gameOptions.state.game === 'ended') return;
-	console.log('mouse click:' + event.which);
+	//console.log('mouse click: ' + event.which);
 	const
 		tile = event.target
 	;
@@ -164,9 +174,17 @@ const handleTileClick = event => {
 	if(event.which === 1) { // reveal a tile
 		if(tile.classList.contains('flag')) return;
 		tile.classList.remove('hidden');
-		if(tile.getAttributeNode('data-mine').value === 'true') {
+		if(tile.getAttributeNode('data-mine')?.value === 'true') {
+			console.log('MINE!!!!!!!', gameOptions.state.first);
+			if(gameOptions.state.first) {
+				buildGrid();
+				return;
+			}
 			tile.classList.add('mine_hit');
 			gameOver();
+		}
+		if(gameOptions.state.first) {
+			gameOptions.state.first = false;
 		}
 	}
 	// Middle Click
@@ -175,14 +193,19 @@ const handleTileClick = event => {
 		//TODO try to reveal adjacent tiles
 	}
 	// Right Click
-	else if(event.which === 3) { // toggle a tile flag
-		//TODO toggle a tile flag
+	else if(event.which === 3 && (gameOptions.state.flags < gameOptions.state.remainingMines)) { // toggle a tile flag
 		if(tile.classList.contains('flag')) {
 			tile.classList.remove('flag');
+			gameOptions.state.flags--;
 		} else {
 			tile.classList.add('flag');
 			gameOptions.state.flags++;
 		}
+		const
+			minesLeft = (gameOptions.state.remainingMines - gameOptions.state.flags)
+		;
+		document.getElementById('flagCount').innerHTML = minesLeft?.toString()?.padStart(settings.timerPad, '0');
+
 	}
 };
 
@@ -192,7 +215,6 @@ const setDifficulty = () => {
 	;
 	//console.log(difficultySelector.options);
 	gameOptions.difficulty = settings.difficulties[difficultySelector.selectedIndex];
-	//TODO implement me
 };
 
 const gameOver = () => {
@@ -206,7 +228,7 @@ const gameOver = () => {
 			if(tile.classList.contains('flag')) {
 				tile.classList.add('mine_marked');
 			}
-			else if(tile.getAttributeNode('data-mine').value === 'true' && !tile.classList.contains('mine_hit')) {
+			else if(tile.getAttributeNode('data-mine')?.value === 'true' && !tile.classList.contains('mine_hit')) {
 				tile.classList.add('mine');
 			}
 		}
@@ -219,9 +241,7 @@ const gameOver = () => {
 };
 
 const startTimer = () => {
-	if(gameOptions.data.timerInterval !== null) {
-		window.clearInterval(gameOptions.data.timerInterval);
-	}
+	killTimer();
 	gameOptions.data.timerInterval = window.setInterval(onTimerTick, 1000);
 	updateTimer();
 };
@@ -236,4 +256,46 @@ const onTimerTick = () => {
 
 const updateTimer = () => {
 	document.getElementById('timer').innerHTML = gameOptions.time?.toString()?.padStart(settings.timerPad, '0');
+};
+
+const killTimer = () => {
+	if(gameOptions.data.timerInterval !== null) {
+		window.clearInterval(gameOptions.data.timerInterval);
+	}
+};
+
+const getNeighbours = (x, y) => {
+	const list = [];
+	const minX = Math.max(0, x - 1);
+	const maxX = Math.min(this.getX - 1, x + 1);
+	const minY = Math.max(0, y - 1);
+	const maxY = Math.min(this.getY - 1, y + 1);
+	for(let x0 = minX; x0 <= maxX; x0++) {
+		for(let y0 = minY; y0 <= maxY; y0++) {
+			if(x0 !== x || y0 !== y) {
+				//list.push(this.map[y0][x0]);
+			}
+		}
+	}
+	return list;
+};
+
+/*
+	Fisher-Yates shuffle
+*/
+
+const shuffle = array => {
+	var m = array.length, t, i;
+
+	// While there remain elements to shuffle…
+	while(m) {
+		// Pick a remaining element…
+		i = Math.floor(Math.random() * m--);
+
+		// And swap it with the current element.
+		t = array[m];
+		array[m] = array[i];
+		array[i] = t;
+	}
+	return array;
 };
