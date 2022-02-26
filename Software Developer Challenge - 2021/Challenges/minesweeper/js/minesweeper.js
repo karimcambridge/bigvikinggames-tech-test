@@ -214,7 +214,7 @@ const revealTile = (tile, event) => {
 			nearbyMines = nearbyTiles.filter(tile => tile.element.getAttribute('data-mine') === 'true').length
 		;
 		if(nearbyMines === 0) {
-			nearbyTiles.forEach(tile => revealTile(tile));
+			nearbyTiles.forEach(tile => revealTile(tile, event));
 		} else {
 			tile.element.textContent = nearbyMines;
 		}
@@ -229,11 +229,9 @@ const handleTileClick = (event, tile) => {
 		startTimer();
 		console.log(gameOptions.difficulty);
 	}
-	if(!tile.element.classList.contains('hidden')) {
-		return;
-	}
 	// Left Click
 	if(event.which === 1) { // reveal a tile
+		if(!tile.element.classList.contains('hidden')) return;
 		revealTile(tile, event);
 		if(gameOptions.state.remainingMines === 0) {
 			gameEnd('win');
@@ -241,11 +239,19 @@ const handleTileClick = (event, tile) => {
 	}
 	// Middle Click
 	else if(event.which === 2) {
-		if(tile.element.classList.contains('flag')) return;
-		//TODO try to reveal adjacent tiles
+		if(tile.element.classList.contains('flag')) return; // reveal all hidden, unflagged and adjacent tiles
+		const
+			nearbyTiles = getNearbyTiles(tile.position.x, tile.position.y),
+			nearbyFlags = nearbyTiles.filter(tile => tile.element.classList.contains('flag')).length
+		;
+		if(nearbyFlags === parseInt(tile.element.textContent)) {
+			//console.log(nearbyFlags, parseInt(tile.element.textContent));
+			nearbyTiles.forEach(tile => revealTile(tile, event));
+		}
 	}
 	// Right Click
 	else if(event.which === 3) { // toggle a tile flag
+		if(!tile.element.classList.contains('hidden')) return;
 		// && (gameOptions.state.flags < gameOptions.state.remainingMines) // ?
 		if(tile.element.classList.contains('flag')) {
 			tile.element.classList.remove('flag');
